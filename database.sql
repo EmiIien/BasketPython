@@ -3,8 +3,7 @@ CREATE TABLE user (
     username TEXT NOT NULL,
     pswrd TEXT NOT NULL,
     mail TEXT,
-    age INTEGER NOT NULL,
-    
+    age INTEGER NOT NULL
 );
 
 CREATE TABLE game (
@@ -13,14 +12,12 @@ CREATE TABLE game (
     adress TEXT NOT NULL,
     game_day DATE NOT NULL,
     age_Max INT,
-    age_MIN INT,
-    
+    age_MIN INT
 );
 
 CREATE TABLE player (
     id_user INTEGER NOT NULL,
     id_game INTEGER NOT NULL,
     FOREIGN KEY (id_user) REFERENCES user(id_user),
-    FOREIGN KEY (id_game) REFERENCES game(id_game),
-
+    FOREIGN KEY (id_game) REFERENCES game(id_game)
 );
