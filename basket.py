@@ -1,7 +1,7 @@
 import os
 import sqlite3
 import click
-
+from werkzeug.security import generate_password_hash, check_password_hash
 from flask import Flask,render_template,request,session,redirect,url_for,current_app,g
 from flask.cli import with_appcontext
 
