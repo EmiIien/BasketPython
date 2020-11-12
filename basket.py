@@ -1,12 +1,14 @@
 import os
 import sqlite3
 import click
-from werkzeug.security import generate_password_hash, check_password_hash
-from flask import Flask,render_template,request,session,redirect,url_for,current_app,g
+
+from flask import Flask, render_template, request, session, redirect, url_for, current_app, g
 from flask.cli import with_appcontext
+from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
-app.secret_key = 'testsecretkey'
+app.secret_key = 'testSecretKey'
+
 
 def get_db():
     if 'db' not in g:
@@ -24,6 +26,7 @@ def close_db(e=None):
 
     if db is not None:
         db.close()
+
 
 def init_db():
     db = get_db()
@@ -43,49 +46,50 @@ def init_db_command():
 app.teardown_appcontext(close_db)
 app.cli.add_command(init_db_command)
 
-@app.route('/',methods={"GET","POST"})
+
+@app.route('/', methods={"GET", "POST"})
 def login():
-    if request.method=="POST":
-        email=request.form['email']
-        pswd=request.form['pswd']
+    if request.method == "POST":
+        email = request.form['email']
+        pswd = request.form['pswd']
         db = get_db()
-        mdp = db.execute('SELECT pswrd FROM user where mail = (?)',(email,)).fetchone()[0]
-        if(check_password_hash(mdp, pswd)):
-            session["email"]=email
+        mdp = db.execute('SELECT pswrd FROM user where mail = (?)', (email,)).fetchone()[0]
+        if check_password_hash(mdp, pswd):
+            session["email"] = email
             return redirect(url_for('index'))
         else:
-            return ("mdp ou mail incorrect")
+            return "mdp ou mail incorrect"
     else:
         return render_template('login.html')
 
 
-@app.route('/index',methods={"get","post"})
+@app.route('/index', methods={"get", "post"})
 def index():
     if "email" in session:
-        email=session["email"]
-        db=get_db()
+        email = session["email"]
+        db = get_db()
         users = (db.execute('SELECT * FROM user')).fetchall()
-        return render_template('index.html',mail=email,users = users)
+        return render_template('index.html', mail=email, users=users)
     else:
-        return render_template('login.html')    
+        return render_template('login.html')
 
 
-@app.route('/register',methods={"get","post"})
+@app.route('/register', methods={"get", "post"})
 def register():
-    if request.method=="POST":
-        username=request.form['username']
-        email=request.form['email']
-        age=request.form['age']
-        pswd=generate_password_hash(request.form['pswd'])
-        db=get_db()
-        testmail = db.execute('SELECT id_user FROM user WHERE mail = (?)',(email,)).fetchall()
-        if len(testmail)==0:
+    if request.method == "POST":
+        username = request.form['username']
+        email = request.form['email']
+        age = request.form['age']
+        pswd = generate_password_hash(request.form['pswrd'])
+        db = get_db()
+        testEmail = db.execute('SELECT id_user FROM user WHERE mail = (?)', (email,)).fetchall()
+        if len(testEmail) == 0:
             db = get_db()
-            db.execute('INSERT INTO user (username,pswrd,mail,age) VALUES(?,?,?,?)',(username,pswd,email,age))
+            db.execute('INSERT INTO user (username,pswrd,mail,age) VALUES(?,?,?,?)', (username, pswd, email, age))
             db.commit()
             return render_template('login.html')
         else:
-            return ("mail dÈj‡ utilisÈ")
+            return "mail d√©j√† utilis√©"
     else:
         return render_template('register.html')
 
@@ -94,3 +98,17 @@ def register():
 def logout():
     session.pop("email", None)
     return render_template("login.html")
+
+
+@app.route('/createMatch', methods={"get", "post"})
+def createMatch():
+    if request.method == "POST":
+        game_title = request.form['game_title']
+        address = request.form['address']
+        game_day = request.form['game_day']
+        age_Max = request.form['age_Max']
+        age_MIN = request.form['age_MIN']
+        db = get_db()
+        db.execute('INSERT INTO game (game_title,address,game_day,age_Max,age_MIN) VALUES(?,?,?,?,?)', (game_title, address, game_day, age_Max, age_MIN))
+        db.commit()
+    return render_template('createMatch.html')

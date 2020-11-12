@@ -9,7 +9,7 @@ CREATE TABLE user (
 CREATE TABLE game (
     id_game INTEGER PRIMARY KEY AUTOINCREMENT,
     game_title TEXT NOT NULL,
-    adress TEXT NOT NULL,
+    address TEXT NOT NULL,
     game_day DATE NOT NULL,
     age_Max INT,
     age_MIN INT
