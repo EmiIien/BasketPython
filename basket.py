@@ -80,7 +80,7 @@ def register():
         username = request.form['username']
         email = request.form['email']
         age = request.form['age']
-        pswd = generate_password_hash(request.form['pswrd'])
+        pswd = generate_password_hash(request.form['pswd'])
         db = get_db()
         testEmail = db.execute('SELECT id_user FROM user WHERE mail = (?)', (email,)).fetchall()
         if len(testEmail) == 0:
@@ -104,11 +104,12 @@ def logout():
 def createMatch():
     if request.method == "POST":
         game_title = request.form['game_title']
-        address = request.form['address']
+        adress = request.form['adress']
         game_day = request.form['game_day']
+        game_hour = request.form['game_hour']
         age_Max = request.form['age_Max']
         age_MIN = request.form['age_MIN']
         db = get_db()
-        db.execute('INSERT INTO game (game_title,address,game_day,age_Max,age_MIN) VALUES(?,?,?,?,?)', (game_title, address, game_day, age_Max, age_MIN))
+        db.execute('INSERT INTO game (game_title,adress,game_day,game_hour,age_Max,age_MIN) VALUES(?,?,?,?,?,?)', (game_title, adress, game_day, game_hour, age_Max, age_MIN))
         db.commit()
     return render_template('createMatch.html')

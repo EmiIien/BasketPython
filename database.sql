@@ -1,3 +1,7 @@
+DROP TABLE IF EXISTS user;
+DROP TABLE IF EXISTS game;
+DROP TABLE IF EXISTS player;
+
 CREATE TABLE user (
     id_user INTEGER PRIMARY KEY AUTOINCREMENT,
     username TEXT NOT NULL,
@@ -9,8 +13,9 @@ CREATE TABLE user (
 CREATE TABLE game (
     id_game INTEGER PRIMARY KEY AUTOINCREMENT,
     game_title TEXT NOT NULL,
-    address TEXT NOT NULL,
+    adress TEXT NOT NULL,
     game_day DATE NOT NULL,
+    game_hour TIME NOT NULL,
     age_Max INT,
     age_MIN INT
 );
