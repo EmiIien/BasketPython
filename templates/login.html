@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>Page de connexion</title>
+    </head>
+    <body bgcolor="#EEEEEE" text="000000">
+        <h1>Connexion</h1>
+        <form name="form_login" action="{{ url_for('login') }}" method="POST">
+
+            <label for="email">Email</label>
+            <input type="text" name="email" id="email"></input><br></br>
+
+            <label for="pswd">mot de passe</label>
+            <input type="text" name="pswd" id="pswd"></input><br></br>
+
+            <input type="submit" value="Se connecter"></input><br></br>           
+        </form>
+        <a href="{{ url_for('register') }}">
+            <button>S'inscrire</button>
+        </a>
+    
+
+
+    </body>
+</html>

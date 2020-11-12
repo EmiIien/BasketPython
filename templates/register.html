@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Page d'inscription</title>
+    </head>
+    <body bgcolor="#EEEEEE" text="000000">
+        <h1>Inscription</h1>
+        <form name="form_register" action="{{ url_for('register') }}" method="post">
+            <label for="username">Nom d'utilisateur</label>
+            <input type="text" name="username" id="username"></input><br></br>
+
+            <label for="email">Email</label>
+            <input type="email" name="email" id="email"></input><br></br>
+
+            <label for="age">Age</label>
+            <input type="text" name="age" id="age"></input><br></br>
+
+            <label for="pswd">mot de passe</label>
+            <input type="password" name="pswd" id="pswd"></input><br></br>
+
+            <label for="pswd1">Confirmer votre mote de passe</label>
+            <input type="password" name="pswd1" id="pswd1"></input><br></br>
+
+            <input type="submit" value="S'inscrire"></input>
+        </form>
+    </body>
+</html>
