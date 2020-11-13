@@ -23,6 +23,12 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('createMatch') }}">Créer un match</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('player') }}">Mes matchs</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('update') }}">Mes infos</a>
+                    </li>
                 </ul>
                 <span class="navbar-text">
                     <form action="{{ url_for('logout') }}">
@@ -31,5 +37,25 @@
                 </span>
             </div>
         </nav>
+        <h1 style="text-align: center;">Liste des Matchs</h1>
+        <br>
+        <table border="1"  style="margin: auto;width: 500px;">
+            {% for game in games %}
+            <tr>
+                <td> <button type="button"  data-toggle="dropdown" style="width: 500px; height: 75px;">{{ game[1] }} au {{ game[2] }} le {{ game[3] }}</button> 
+                    <ul class="dropdown-menu" role="menu" style="width: 500px;">
+                        <li style="width: 500px;">Heure : {{ game[4] }}</li>
+                        <li style="width: 500px;">Age maximum requis: {{ game[5] }}</li>
+                        <li style="width: 500px;">Age minimum requis: {{ game[6] }}</li>
+                        <form action="{{ url_for('player') }}" method="POST">
+                        <input type="hidden" name="id_game" id="id_game" value="{{ game[0] }}">
+                        <input type="submit" value="Je participe!" style="width: 500px;">
+                        </form>
+                    </ul>
+                </td>
+            </tr>
+            {% endfor %}
+
+        </table>
     </body>
 </html>

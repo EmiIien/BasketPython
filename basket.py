@@ -1,4 +1,4 @@
-import os
+﻿import os
 import sqlite3
 import click
 
@@ -53,12 +53,14 @@ def login():
         email = request.form['email']
         pswd = request.form['pswd']
         db = get_db()
-        mdp = db.execute('SELECT pswrd FROM user where mail = (?)', (email,)).fetchone()[0]
-        if check_password_hash(mdp, pswd):
+        mdp = db.execute('SELECT pswrd FROM user where mail = (?)', (email,)).fetchone()
+        if not mdp:
+            return "mail incorrect"
+        elif check_password_hash(mdp[0], pswd):
             session["email"] = email
             return redirect(url_for('index'))
         else:
-            return "mdp ou mail incorrect"
+            return "mdp incorrect"
     else:
         return render_template('login.html')
 
@@ -68,8 +70,20 @@ def index():
     if "email" in session:
         email = session["email"]
         db = get_db()
-        users = (db.execute('SELECT * FROM user')).fetchall()
-        return render_template('index.html', mail=email, users=users)
+        id_user = db.execute('SELECT id_user FROM user WHERE mail = (?)', (email,)).fetchone()[0]
+        #select id of games where I participate
+        mygames_id = db.execute('SELECT id_game FROM player WHERE id_user = (?)', (id_user,)).fetchall()
+        #select all games
+        allgames = db.execute('SELECT * FROM game').fetchall()
+        #games where I participate
+        mygames = []
+        for id in mygames_id:
+                g = db.execute('SELECT * FROM game where id_game =(?)', (id[0],)).fetchall()
+                mygames = mygames + g
+        #games where I dont participate
+        set_games = set(allgames) - set (mygames)
+        games = list (set_games)
+        return render_template('index.html', games = games)
     else:
         return render_template('login.html')
 
@@ -102,14 +116,76 @@ def logout():
 
 @app.route('/createMatch', methods={"get", "post"})
 def createMatch():
-    if request.method == "POST":
-        game_title = request.form['game_title']
-        adress = request.form['adress']
-        game_day = request.form['game_day']
-        game_hour = request.form['game_hour']
-        age_Max = request.form['age_Max']
-        age_MIN = request.form['age_MIN']
+    if "email" in session:
+        if request.method == "POST":
+            game_title = request.form['game_title']
+            adress = request.form['adress']
+            game_day = request.form['game_day']
+            game_hour = request.form['game_hour']
+            age_Max = request.form['age_Max']
+            age_MIN = request.form['age_MIN']
+            db = get_db()
+            db.execute('INSERT INTO game (game_title,adress,game_day,game_hour,age_Max,age_MIN) VALUES(?,?,?,?,?,?)', (game_title, adress, game_day, game_hour, age_Max, age_MIN))
+            db.commit()
+        return render_template('createMatch.html')
+    else:
+        return render_template('login.html')
+
+@app.route('/player', methods={"get", "post"})
+def player():
+    if "email" in session:
+        email = session['email']
         db = get_db()
-        db.execute('INSERT INTO game (game_title,adress,game_day,game_hour,age_Max,age_MIN) VALUES(?,?,?,?,?,?)', (game_title, adress, game_day, game_hour, age_Max, age_MIN))
-        db.commit()
-    return render_template('createMatch.html')
+        id_user = db.execute('SELECT id_user FROM user WHERE mail = (?)', (email,)).fetchone()[0]
+        mygames_id = db.execute('SELECT id_game FROM player WHERE id_user = (?)', (id_user,)).fetchall()
+        mygames = []
+        if request.method == "POST":
+            id_game = request.form['id_game']
+            db.execute('INSERT INTO player (id_user,id_game) VALUES(?,?)', (id_user, id_game))
+            db.commit()
+            mygames_id = db.execute('SELECT id_game FROM player WHERE id_user = (?)', (id_user,)).fetchall()
+            for id in mygames_id:
+                g = db.execute('SELECT * FROM game where id_game =(?)', (id[0],)).fetchall()
+                mygames = mygames + g
+            return render_template('mygames.html', mygames = mygames)
+        else:
+            for id in mygames_id:
+                g = db.execute('SELECT * FROM game where id_game =(?)', (id[0],)).fetchall()
+                mygames = mygames + g
+            return render_template('mygames.html', mygames = mygames)
+    else:
+        render_template('login.html')
+
+@app.route('/delgame', methods={"get","post"})
+def delgame():
+    if "email" in session:
+        email = session['email']
+        db = get_db()
+        id_user = db.execute('SELECT id_user FROM user WHERE mail = (?)', (email,)).fetchone()[0]
+        if request.method == "POST":
+            id_game = request.form['id_game']
+            db.execute('DELETE from player WHERE id_user = (?) AND id_game= (?)', (id_user, id_game))
+            db.commit()
+            return redirect(url_for('player'))
+        else:
+            return redirect(url_for('player'))
+    else:
+        render_template('login.html')
+
+@app.route('/update',methods={"get","post"})
+def update():
+    if "email" in session:
+        email = session['email']
+        db = get_db()
+        user = db.execute('SELECT username, age FROM user WHERE mail = (?)', (email,)).fetchall()
+        if request.method == "POST":
+            username = request.form['username']
+            age = request.form['age']
+            db.execute('UPDATE user SET username = (?), age = (?) WHERE mail = (?)', (username, age, email))
+            db.commit()
+            return redirect('index')
+        else:
+            return render_template('update.html',user = user)
+
+    else:
+        return render_template('login.html')
