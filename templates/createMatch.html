@@ -18,16 +18,16 @@
             <div class="collapse navbar-collapse" id="navbarText">
                 <ul class="navbar-nav mr-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="index">Accueil <span class="sr-only">(current)</span></a>
+                        <a class="nav-link" href="{{ url_for('index') }}">Accueil</a>
                     </li>
                     <li class="nav-item active">
-                        <a class="nav-link" href="{{ url_for('createMatch') }}">Créer un match</a>
+                        <a class="nav-link" href="{{ url_for('creatematch') }}">Créer un match <span class="sr-only">(current)</span></a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('player') }}">Mes matchs</a>
+                        <a class="nav-link" href="{{ url_for('mygames') }}">Mes matchs</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('update') }}">Mes infos</a>
+                        <a class="nav-link" href="{{ url_for('aboutme') }}">Mes infos</a>
                     </li>
                 </ul>
                 <span class="navbar-text">
@@ -37,10 +37,11 @@
                 </span>
             </div>
         </nav>
+
         <div class="container">
-            <div class="jumbotron" style="margin-top:25%;">
+            <div class="jumbotron" style="margin-top:10%;">
                 <h1 style="text-align:center;">Création d'un match</h1>
-                <form name="form_login" action="{{ url_for('createMatch') }}" method="POST">
+                <form name="form_login" action="{{ url_for('creatematch') }}" method="POST">
                     <div class="form-group">
                         <label for="game_title">Nom de la partie</label>
                         <input type="text" class="form-control" name="game_title" id="game_title" placeholder="Nom de la partie">

@@ -11,6 +11,17 @@
     </head>
     <body>
         <div class="container">
+            {% with messages = get_flashed_messages() %}
+	            {% if messages %}
+	                {% for message in messages %}
+		                <div class="alert alert-warning alert-dismissible" role="alert" style="margin:25% 0 -25%">
+		                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
+                            {{message}}
+		                </div>
+		                {% endfor %}
+                {% endif %}
+	        {% endwith %}
+            {% block body %}{% endblock %}
             <div class="jumbotron" style="margin-top:30%;">
                 <h1 style="text-align:center;">Connexion</h1>
                 <form name="form_login" action="{{ url_for('login') }}" method="POST">
