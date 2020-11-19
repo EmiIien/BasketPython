@@ -47,28 +47,23 @@ app.teardown_appcontext(close_db)
 app.cli.add_command(init_db_command)
 
 
-@app.route('/')
-def home():
-    if not session.get('logged_in'):
-        return login()
-    else:
-        return index()
-
-
 @app.route('/', methods={"GET", "POST"})
 def login():
-    email = request.form['email']
-    pswd = request.form['pswd']
-    db = get_db()
-    mdp = db.execute('SELECT pswrd FROM user where mail = (?)', (email,)).fetchone()
-    if not mdp:
-        flash("Votre mail est incorrect !")
-    elif check_password_hash(mdp[0], pswd):
-        session["email"] = email
-        session['logged_in'] = True
+    if request.method == "POST":
+        email = request.form['email']
+        pswd = request.form['pswd']
+        db = get_db()
+        mdp = db.execute('SELECT pswrd FROM user where mail = (?)', (email,)).fetchone()
+        if not mdp:
+            flash("Votre mail est incorrect !")
+        elif check_password_hash(mdp[0], pswd):
+            session["email"] = email
+            session['logged_in'] = True
+        else:
+            flash('Votre mot de passe est incorrect !')
+        return index()
     else:
-        flash('Votre mot de passe est incorrect !')
-    return home()
+        return index()
 
 
 @app.route('/index', methods={"get", "post"})
