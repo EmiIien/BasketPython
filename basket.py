@@ -47,6 +47,7 @@ app.teardown_appcontext(close_db)
 app.cli.add_command(init_db_command)
 
 
+# Connection function
 @app.route('/', methods={"GET", "POST"})
 def login():
     if request.method == "POST":
@@ -54,6 +55,7 @@ def login():
         pswd = request.form['pswd']
         db = get_db()
         mdp = db.execute('SELECT pswrd FROM user where mail = (?)', (email,)).fetchone()
+        # conditions to check password and mail
         if not mdp:
             flash("Votre mail est incorrect !")
         elif check_password_hash(mdp[0], pswd):
@@ -65,6 +67,7 @@ def login():
         return index()
 
 
+# homepage, where we see all the games created...
 @app.route('/index', methods={"get", "post"})
 def index():
     if "email" in session:
@@ -88,24 +91,27 @@ def index():
         return render_template('login.html')
 
 
+# New user registration
 @app.route('/register', methods={"get", "post"})
 def register():
     if request.method == "POST":
         username = request.form['username']
         email = request.form['email']
         age = request.form['age']
+        # For the registration we generate a hash for the password.
         pswd = generate_password_hash(request.form['pswd'])
         pswd1 = request.form['pswd1']
         db = get_db()
-        #check if one user already uses this email
+        # check if one user already uses this email
         testEmail = db.execute('SELECT id_user FROM user WHERE mail = (?)', (email,)).fetchall()
-        #check if the 2 passwords are not equals
+        # check if the 2 passwords are not equals
         if not check_password_hash(pswd, pswd1):
             flash('Vos  deux mot de passe sont différents')
             return render_template('register.html')
-        #if email not yet used
+        # if email not yet used
         elif len(testEmail) == 0:
             db = get_db()
+            # We insert the values of the registration into the database
             db.execute('INSERT INTO user (username,pswrd,mail,age) VALUES(?,?,?,?)', (username, pswd, email, age))
             db.commit()
             return render_template('login.html')
@@ -122,10 +128,12 @@ def logout():
     return render_template("login.html")
 
 
+# Match Creation
 @app.route('/creatematch', methods={"get", "post"})
 def creatematch():
     if "email" in session:
         if request.method == "POST":
+            # We get the values sent by the user
             game_title = request.form['game_title']
             adress = request.form['adress']
             game_day = request.form['game_day']
@@ -133,6 +141,7 @@ def creatematch():
             age_Max = request.form['age_Max']
             age_MIN = request.form['age_MIN']
             db = get_db()
+            # We insert the values into the database
             db.execute('INSERT INTO game (game_title,adress,game_day,game_hour,age_Max,age_MIN) VALUES(?,?,?,?,?,?)',
                        (game_title, adress, game_day, game_hour, age_Max, age_MIN))
             db.commit()
@@ -141,51 +150,53 @@ def creatematch():
         return render_template('login.html')
 
 
+# show the games where the user participate
 @app.route('/mygames', methods={"get", "post"})
 def mygames():
     if "email" in session:
         email = session['email']
         db = get_db()
-        #select the id of the user
+        # select the id of the user
         id_user = db.execute('SELECT id_user FROM user WHERE mail = (?)', (email,)).fetchone()[0]
-        #select id of games where I participate
+        # select id of games where I participate
         mygames_id = db.execute('SELECT id_game FROM player WHERE id_user = (?)', (id_user,)).fetchall()
-        #put those games in a list names mygames
+        # put those games in a list names mygames
         mygames = []
-        #participate to a game (add to table player)
+        # participate to a game (add to table player)
         if request.method == "POST":
             id_game = request.form['id_game']
             db.execute('INSERT INTO player (id_user,id_game) VALUES(?,?)', (id_user, id_game))
             db.commit()
             mygames_id = db.execute('SELECT id_game FROM player WHERE id_user = (?)', (id_user,)).fetchall()
-            #Put the games where I participate in my list
+            # Put the games where I participate in my list
             for id in mygames_id:
                 g = db.execute('SELECT * FROM game where id_game =(?)', (id[0],)).fetchall()
                 mygames = mygames + g
-            #send the list to the html
+            # send the list to the html
             return render_template('mygames.html', mygames=mygames)
         else:
-            #Put the games where I participate in my list
+            # Put the games where I participate in my list
             for id in mygames_id:
                 g = db.execute('SELECT * FROM game where id_game =(?)', (id[0],)).fetchall()
                 mygames = mygames + g
-            #send the list to the html
+            # send the list to the html
             return render_template('mygames.html', mygames=mygames)
     else:
         render_template('login.html')
 
-#don't participate to a game anymore
+
+# don't participate to a game anymore
 @app.route('/delgame', methods={"get", "post"})
 def delgame():
     if "email" in session:
         email = session['email']
         db = get_db()
-        #select the id of the user
+        # select the id of the user
         id_user = db.execute('SELECT id_user FROM user WHERE mail = (?)', (email,)).fetchone()[0]
         if request.method == "POST":
-            #select the id of the game i don't want to participate anymore
+            # select the id of the game i don't want to participate anymore
             id_game = request.form['id_game']
-            #delete the game from the table player
+            # delete the game from the table player
             db.execute('DELETE from player WHERE id_user = (?) AND id_game= (?)', (id_user, id_game))
             db.commit()
             return redirect(url_for('mygames'))
@@ -194,24 +205,24 @@ def delgame():
     else:
         render_template('login.html')
 
-#show and update the informations(age and username) of an user
+
+# show and update the informations (age and username) of an user
 @app.route('/aboutme', methods={"get", "post"})
 def aboutme():
     if "email" in session:
         email = session['email']
         db = get_db()
-        #select username and age of the user
+        # select username and age of the user
         user = db.execute('SELECT username, age FROM user WHERE mail = (?)', (email,)).fetchall()
-        #update infos if user put new ones
+        # update infos if user put new ones
         if request.method == "POST":
             username = request.form['username']
             age = request.form['age']
             db.execute('UPDATE user SET username = (?), age = (?) WHERE mail = (?)', (username, age, email))
             db.commit()
             return redirect('index')
-        #show infos
+        # show infos
         else:
             return render_template('aboutme.html', user=user)
-
     else:
         return render_template('login.html')
